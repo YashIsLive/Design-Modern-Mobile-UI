@@ -403,6 +403,12 @@ export function FaceRecognitionScreen({ lang, onNext, onBack }: Props) {
           </p>
         </div>
 
+        <div className="mb-3 px-3 py-2 rounded-xl" style={{ background: "#F0FDF9", border: "1px solid rgba(22,163,74,0.18)" }}>
+          <p style={{ fontSize: "0.62rem", color: "#166534", lineHeight: 1.35, fontWeight: 600 }}>
+            Data saved locally. When internet is available, it will sync to the central database.
+          </p>
+        </div>
+
         {/* Continue Button - shows when complete */}
         <AnimatePresence>
           {isComplete && (

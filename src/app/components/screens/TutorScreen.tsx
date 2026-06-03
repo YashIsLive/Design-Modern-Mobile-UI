@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ArrowLeft, Sparkles, Mic, Send, BookOpen, User, Volume2 } from "lucide-react";
+import { ArrowLeft, Sparkles, Mic, Send, BookOpen, User, Volume2, Lightbulb } from "lucide-react";
 
 interface Props {
   onBack: () => void;
@@ -32,6 +32,14 @@ const INITIAL_MESSAGES = [
     textHi: "SAM के लिए: WHZ स्कोर −3 SD से नीचे, या MUAC < 11.5 cm। MAM के लिए: MUAC 11.5–12.5 cm के बीच।",
     citation: "ICDS Operational Guidelines, Sec. 3.2",
   },
+];
+
+const SUGGESTED_QUESTIONS = [
+  { en: "What are vaccination schedules?", hi: "टीकाकरण कार्यक्रम क्या हैं?", type: "Immunisation" },
+  { en: "How to conduct MUAC screening?", hi: "MUAC स्क्रीनिंग कैसे करें?", type: "Malnutrition" },
+  { en: "Infant and Young Child Feeding basics", hi: "शिशु व बाल आहार की मूल बातें", type: "IYCF" },
+  { en: "Gestational Age Assessment", hi: "गर्भकालीन आयु मूल्यांकन", type: "Ante-natal" },
+  { en: "Growth monitoring milestones", hi: "विकास निगरानी के मील के पत्थर", type: "Growth Monitoring" },
 ];
 
 function AIRichResponse() {
@@ -118,12 +126,19 @@ function AIRichResponse() {
 export function TutorScreen({ onBack }: Props) {
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const handleSend = () => {
     if (!input.trim()) return;
     setIsTyping(true);
     setInput("");
+    setShowSuggestions(false);
     setTimeout(() => setIsTyping(false), 2000);
+  };
+
+  const handleSuggestedQuestion = (question: string) => {
+    setInput(question);
+    setShowSuggestions(false);
   };
 
   return (
@@ -250,6 +265,44 @@ export function TutorScreen({ onBack }: Props) {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Suggested Questions */}
+        <AnimatePresence>
+          {showSuggestions && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              className="mt-2"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <Lightbulb size={14} color="#E86B2E" />
+                <p style={{ fontSize: "0.68rem", color: "#6B7A8D", fontWeight: 600 }}>Suggested Questions</p>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                {SUGGESTED_QUESTIONS.map((q, i) => (
+                  <motion.button
+                    key={i}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    onClick={() => handleSuggestedQuestion(q.en)}
+                    className="text-left px-3 py-2 rounded-xl transition-all"
+                    style={{
+                      background: "#FEF0E4",
+                      border: "1px solid rgba(232,107,46,0.2)",
+                    }}
+                    whileHover={{ scale: 1.02, background: "#FEE4CC" }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <p style={{ fontSize: "0.7rem", color: "#E86B2E", fontWeight: 500 }}>{q.en}</p>
+                    <p style={{ fontSize: "0.6rem", color: "#6B7A8D", fontFamily: "'Noto Sans Devanagari', sans-serif", marginTop: 1 }}>{q.hi}</p>
+                  </motion.button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Fixed Input Bar */}
@@ -276,8 +329,12 @@ export function TutorScreen({ onBack }: Props) {
           <input
             type="text"
             value={input}
-            onChange={e => setInput(e.target.value)}
+            onChange={e => {
+              setInput(e.target.value);
+              setShowSuggestions(e.target.value.length === 0);
+            }}
             onKeyDown={e => e.key === "Enter" && handleSend()}
+            onFocus={() => setShowSuggestions(input.length === 0)}
             placeholder="Ask a follow-up question..."
             className="flex-1 bg-transparent outline-none"
             style={{ fontSize: "0.82rem", color: "#1A2E4A" }}

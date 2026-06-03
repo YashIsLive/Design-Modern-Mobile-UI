@@ -41,12 +41,13 @@ function StepProgress({ current, total }: { current: number; total: number }) {
 const SCAN_DURATION = 3500;
 
 export function KYCScreen({ onNext, onBack }: Props) {
-  const [aadhaar, setAadhaar] = useState("");
+  const [aadhaar, setAadhaar] = useState("123412341234");
   const [scanning, setScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
   const [scanDone, setScanDone] = useState(false);
   const [scanLineY, setScanLineY] = useState(-80);
   const [scanLineDir, setScanLineDir] = useState(1);
+  const canVerify = aadhaar.replace(/\D/g, "").length === 12;
 
   const formatAadhaar = (raw: string) => {
     const d = raw.replace(/\D/g, "").slice(0, 12);
@@ -85,7 +86,6 @@ export function KYCScreen({ onNext, onBack }: Props) {
     return () => clearInterval(lineInterval);
   }, [scanning, scanLineDir]);
 
-  const canVerify = aadhaar.replace(/\D/g, "").length === 12;
   const circumference = 2 * Math.PI * 90;
   const strokeDash = circumference - (circumference * scanProgress) / 100;
 
@@ -287,22 +287,134 @@ export function KYCScreen({ onNext, onBack }: Props) {
           <div className="flex items-center gap-1.5 mt-8 px-3 py-1.5 rounded-full"
             style={{ background: "#FEF0E4", border: "1px solid rgba(232,107,46,0.25)" }}>
             <WifiOff size={12} color="#E86B2E" />
-            <p style={{ fontSize: "0.62rem", color: "#E86B2E", fontWeight: 500 }}>Local Validation — No internet required</p>
+            <p style={{ fontSize: "0.62rem", color: "#E86B2E", fontWeight: 500 }}>Local validation. Data syncs to the central database when internet is available.</p>
           </div>
         </div>
+
+        {/* Photo Comparison Section (appears after scan completes) */}
+        {scanDone && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="mb-5"
+          >
+            {/* Photo Comparison Row */}
+            <div className="flex gap-3 mb-4">
+              {/* Aadhaar Photo */}
+              <div className="flex-1">
+                <div className="mb-2 flex items-center justify-between">
+                  <p style={{ fontSize: "0.7rem", color: "#1A2E4A", fontWeight: 600 }}>Aadhaar Photo</p>
+                  <span className="px-2 py-1 rounded-lg" style={{ background: "#FEF0E4", fontSize: "0.5rem", color: "#E86B2E", fontWeight: 700 }}>
+                    UIDAI
+                  </span>
+                </div>
+                <div
+                  className="relative rounded-xl overflow-hidden border-2 aspect-square flex items-center justify-center"
+                  style={{ background: "#F5EDE2", borderColor: "#E86B2E" }}
+                >
+                  {/* Placeholder face */}
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-b from-yellow-200 to-yellow-300 flex items-center justify-center">
+                    <svg width="40" height="48" viewBox="0 0 40 48" fill="none">
+                      <ellipse cx="20" cy="14" rx="8" ry="10" fill="#8B5A2B" />
+                      <ellipse cx="20" cy="25" rx="12" ry="14" fill="#D4956A" />
+                      <ellipse cx="16" cy="24" rx="1.5" ry="2" fill="#1A1A1A" />
+                      <ellipse cx="24" cy="24" rx="1.5" ry="2" fill="#1A1A1A" />
+                      <path d="M18 30 Q20 32 22 30" stroke="#8B5A2B" strokeWidth="1" fill="none" strokeLinecap="round" />
+                    </svg>
+                  </div>
+                  <p style={{ position: "absolute", top: 8, fontSize: "0.65rem", color: "#6B7A8D" }}>SAMITA DEVI</p>
+                </div>
+              </div>
+
+              {/* Live Camera */}
+              <div className="flex-1">
+                <div className="mb-2 flex items-center justify-between">
+                  <p style={{ fontSize: "0.7rem", color: "#1A2E4A", fontWeight: 600 }}>Live Camera</p>
+                  <span className="px-2 py-1 rounded-lg animate-pulse" style={{ background: "#FEE2E2", fontSize: "0.5rem", color: "#EF4444", fontWeight: 700 }}>
+                    ● LIVE
+                  </span>
+                </div>
+                <div
+                  className="relative rounded-xl overflow-hidden border-2 aspect-square flex items-center justify-center"
+                  style={{ background: "#1A2E4A", borderColor: "#E86B2E" }}
+                >
+                  {/* Placeholder face */}
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-b from-yellow-200 to-yellow-300 flex items-center justify-center">
+                    <svg width="40" height="48" viewBox="0 0 40 48" fill="none">
+                      <ellipse cx="20" cy="14" rx="8" ry="10" fill="#8B5A2B" />
+                      <ellipse cx="20" cy="25" rx="12" ry="14" fill="#D4956A" />
+                      <ellipse cx="16" cy="24" rx="1.5" ry="2" fill="#1A1A1A" />
+                      <ellipse cx="24" cy="24" rx="1.5" ry="2" fill="#1A1A1A" />
+                      <path d="M18 30 Q20 32 22 30" stroke="#8B5A2B" strokeWidth="1" fill="none" strokeLinecap="round" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Match Confidence */}
+            <div className="mb-4 p-3 rounded-xl" style={{ background: "#F0FDF9", border: "1px solid #D1FAE5" }}>
+              <div className="flex items-center justify-between mb-2">
+                <p style={{ fontSize: "0.75rem", color: "#1A2E4A", fontWeight: 600 }}>Match Confidence</p>
+                <span style={{ fontSize: "0.8rem", color: "#10B981", fontWeight: 700 }}>94%</span>
+              </div>
+              <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: "rgba(16,185,129,0.2)" }}>
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: "94%" }}
+                  transition={{ duration: 1.5, ease: "easeOut" }}
+                  className="h-full"
+                  style={{ background: "linear-gradient(90deg, #10B981, #059669)" }}
+                />
+              </div>
+            </div>
+
+            {/* Identity Verified Status */}
+            <div className="p-3 rounded-xl flex items-center gap-3 mb-4" style={{ background: "#F0FDF9", border: "2px solid #10B981" }}>
+              <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: "#10B981" }}>
+                <CheckCircle2 size={16} color="#fff" strokeWidth={3} />
+              </div>
+              <div className="flex-1">
+                <p style={{ fontSize: "0.75rem", color: "#10B981", fontWeight: 700 }}>Identity Verified</p>
+                <p style={{ fontSize: "0.65rem", color: "#6B7A8D", fontFamily: "'Noto Sans Devanagari', sans-serif" }}>पहचान सत्यापित</p>
+              </div>
+            </div>
+
+            {/* Data Saved Status */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="p-3 rounded-xl" style={{ background: "#EEF2FF", border: "1px solid rgba(99,102,241,0.2)" }}
+            >
+              <p style={{ fontSize: "0.7rem", color: "#4338CA", fontWeight: 600, marginBottom: 6 }}>
+                Data Saved & Verified Locally
+              </p>
+              <p style={{ fontSize: "0.65rem", color: "#3730A3", lineHeight: 1.4, marginBottom: 4 }}>
+                Saved locally now. It will sync to the central database when internet is available.
+              </p>
+              <p style={{ fontSize: "0.65rem", color: "#3730A3", fontFamily: "'Noto Sans Devanagari', sans-serif", lineHeight: 1.4 }}>
+                डेटा स्थानीय रूप से सहेजा और सत्यापित किया गया है।<br/>
+                <span style={{ fontSize: "0.6rem", opacity: 0.8 }}>केंद्रीय डेटाबेस में उपलब्ध होने पर सर्वर पर सिंक होगा।</span>
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
 
         {/* Verify Button */}
         <motion.button
           whileTap={{ scale: 0.97 }}
-          onClick={() => { if (canVerify && !scanning) { startScan(); setTimeout(onNext, SCAN_DURATION + 500); } }}
-          disabled={!canVerify || scanning}
+          onClick={() => { if (canVerify && scanDone && !scanning) { onNext(); } }}
+          disabled={!canVerify || !scanDone || scanning}
           className="w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all"
           style={{
-            background: canVerify && !scanning ? "#E86B2E" : "#D4C4B5",
+            background: canVerify && scanDone && !scanning ? "#E86B2E" : "#D4C4B5",
             color: "#fff",
             fontSize: "0.92rem",
-            boxShadow: canVerify && !scanning ? "0 6px 20px rgba(232,107,46,0.38)" : "none",
+            boxShadow: canVerify && scanDone && !scanning ? "0 6px 20px rgba(232,107,46,0.38)" : "none",
             borderRadius: 50,
+            cursor: canVerify && scanDone && !scanning ? "pointer" : "not-allowed",
           }}
         >
           {scanning ? (
@@ -310,11 +422,17 @@ export function KYCScreen({ onNext, onBack }: Props) {
               <div className="w-5 h-5 rounded-full border-2 animate-spin" style={{ borderColor: "#fff", borderTopColor: "transparent" }} />
               Verifying... / सत्यापित हो रहा है
             </>
+          ) : canVerify && scanDone ? (
+            <>
+              <CheckCircle2 size={17} />
+              Continue{" "}
+              <span style={{ fontFamily: "'Noto Sans Devanagari', sans-serif", fontWeight: 400, fontSize: "0.78rem", opacity: 0.85 }}>/ जारी रखें</span>
+            </>
           ) : (
             <>
               <WifiOff size={17} />
-              Verify Offline{" "}
-              <span style={{ fontFamily: "'Noto Sans Devanagari', sans-serif", fontWeight: 400, fontSize: "0.78rem", opacity: 0.85 }}>/ ऑफलाइन सत्यापन</span>
+              Complete All Steps{" "}
+              <span style={{ fontFamily: "'Noto Sans Devanagari', sans-serif", fontWeight: 400, fontSize: "0.78rem", opacity: 0.85 }}>/ सभी चरण पूरे करें</span>
             </>
           )}
         </motion.button>

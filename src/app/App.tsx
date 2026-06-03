@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { AppBar } from "./components/AppBar";
 import { LoginScreen } from "./components/screens/LoginScreen";
 import { DashboardScreen } from "./components/screens/DashboardScreen";
 import { AddBeneficiaryScreen } from "./components/screens/AddBeneficiaryScreen";
 import { KYCScreen } from "./components/screens/KYCScreen";
 import { TutorScreen } from "./components/screens/TutorScreen";
+import { RoleSelectionScreen } from "./components/onboarding/RoleSelectionScreen";
 
-type Screen = "login" | "dashboard" | "add" | "kyc" | "tutor";
+type Screen = "roleSelect" | "login" | "dashboard" | "add" | "kyc" | "tutor";
+type UserRole = "aww" | "beneficiary" | "supervisor";
 
 const SCREEN_META: Record<Screen, { label: string; labelHi: string }> = {
+  roleSelect: { label: "Role", labelHi: "भूमिका" },
   login:     { label: "Login",     labelHi: "लॉगिन" },
   dashboard: { label: "Dashboard", labelHi: "डैशबोर्ड" },
   add:       { label: "Register",  labelHi: "पंजीकरण" },
@@ -17,12 +19,13 @@ const SCREEN_META: Record<Screen, { label: string; labelHi: string }> = {
   tutor:     { label: "AI Tutor",  labelHi: "AI ट्यूटर" },
 };
 
-const SCREENS: Screen[] = ["login", "dashboard", "add", "kyc", "tutor"];
+const SCREENS: Screen[] = ["roleSelect", "login", "dashboard", "add", "kyc", "tutor"];
 
-const NAV_HIDDEN: Screen[] = ["login"];
+const NAV_HIDDEN: Screen[] = ["roleSelect", "login", "dashboard", "add", "kyc", "tutor"];
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>("login");
+  const [userRole, setUserRole] = useState<UserRole | null>("aww");
   const [isOnline, setIsOnline] = useState(true);
   const [dir, setDir] = useState(1);
 
@@ -77,10 +80,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* App Bar — on every screen except login which has its own header */}
-        {screen !== "login" && (
-          <AppBar isOnline={isOnline} onToggleOnline={() => setIsOnline(o => !o)} />
-        )}
+        {/* App Bar — Removed */}
 
         {/* Screen content */}
         <div className="flex-1 relative overflow-hidden">
@@ -95,11 +95,26 @@ export default function App() {
               transition={{ type: "spring", stiffness: 320, damping: 34, mass: 0.85 }}
               className="absolute inset-0 overflow-hidden"
             >
-              {screen === "login" && <LoginScreen onNext={() => goTo("dashboard", 1)} />}
+              {screen === "roleSelect" && (
+                <RoleSelectionScreen
+                  onNext={(role) => {
+                    setUserRole(role);
+                    goTo("login", 1);
+                  }}
+                />
+              )}
+              {screen === "login" && (
+                <LoginScreen
+                  onNext={() => goTo("dashboard", 1)}
+                  userRole={userRole}
+                  onRoleChange={setUserRole}
+                />
+              )}
               {screen === "dashboard" && (
                 <DashboardScreen
                   onAddBeneficiary={() => goTo("add", 1)}
                   onAITutor={() => goTo("tutor", 1)}
+                  onLogout={() => { setUserRole("aww"); goTo("login", -1); }}
                 />
               )}
               {screen === "add" && (
@@ -125,32 +140,6 @@ export default function App() {
         <div className="flex justify-center py-2 flex-shrink-0" style={{ background: "#FDF6EE" }}>
           <div style={{ width: 128, height: 4, borderRadius: 2, background: "rgba(26,46,74,0.18)" }} />
         </div>
-      </div>
-
-      {/* Demo navigator — outside phone frame */}
-      <div className="flex items-center gap-1 mt-4 flex-wrap justify-center max-w-sm px-2">
-        {SCREENS.map((s, i) => {
-          const meta = SCREEN_META[s];
-          const isActive = screen === s;
-          return (
-            <button
-              key={s}
-              onClick={() => goTo(s, SCREENS.indexOf(s) >= SCREENS.indexOf(screen) ? 1 : -1)}
-              className="flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-xl transition-all"
-              style={{
-                background: isActive ? "#E86B2E" : "rgba(255,255,255,0.1)",
-                border: `1px solid ${isActive ? "#E86B2E" : "rgba(255,255,255,0.15)"}`,
-              }}
-            >
-              <span style={{ fontSize: "0.62rem", color: isActive ? "#fff" : "rgba(255,255,255,0.7)", fontWeight: isActive ? 700 : 400 }}>
-                {meta.label}
-              </span>
-              <span style={{ fontSize: "0.5rem", color: isActive ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.4)", fontFamily: "'Noto Sans Devanagari', sans-serif" }}>
-                {meta.labelHi}
-              </span>
-            </button>
-          );
-        })}
       </div>
     </div>
   );

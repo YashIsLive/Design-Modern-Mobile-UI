@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { motion } from "motion/react";
-import { ArrowLeft, ChevronRight, Calendar, ChevronDown, User, Sparkles, Baby } from "lucide-react";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { ArrowLeft, ChevronRight, ChevronLeft, Calendar, ChevronDown, User, Sparkles, Baby } from "lucide-react";
 
 interface Props {
   onNext: () => void;
@@ -60,6 +60,65 @@ export function AddBeneficiaryScreen({ onNext, onBack }: Props) {
   const [category, setCategory] = useState("");
   const [showCatDrop, setShowCatDrop] = useState(false);
   const [mobile, setMobile] = useState("");
+  const [hintIndex, setHintIndex] = useState(0);
+
+  const hints = [
+    {
+      title: "Mobile Number Match",
+      titleHi: "मोबाइल नंबर मिलान",
+      text: "Ensure the mother's mobile number matches her government health card for seamless benefit routing.",
+      textHi: "सुनिश्चित करें कि माँ का मोबाइल नंबर सरकारी हेल्थ कार्ड से मेल खाता हो।"
+    },
+    {
+      title: "Date Verification",
+      titleHi: "तारीख सत्यापन",
+      text: "Enter the correct date of birth. This helps track developmental milestones and immunization schedules.",
+      textHi: "सही जन्म तारीख दर्ज करें। यह विकासात्मक मील के पत्थर और टीकाकरण शेड्यूल ट्रैक करने में मदद करता है।"
+    },
+    {
+      title: "Category Selection",
+      titleHi: "श्रेणी चयन",
+      text: "Correct category selection ensures beneficiaries receive age-appropriate health interventions and schemes.",
+      textHi: "सही श्रेणी चयन यह सुनिश्चित करता है कि लाभार्थियों को उम्र-उपयुक्त स्वास्थ्य हस्तक्षेप और योजनाएं मिलें।"
+    },
+    {
+      title: "Complete Information",
+      titleHi: "पूर्ण जानकारी",
+      text: "All fields are required to create a comprehensive health profile for better monitoring and support.",
+      textHi: "बेहतर निगरानी और सहायता के लिए एक व्यापक स्वास्थ्य प्रोफ़ाइल बनाने के लिए सभी क्षेत्र आवश्यक हैं।"
+    },
+    {
+      title: "Offline First",
+      titleHi: "Offline sync",
+      text: "If the network is weak, complete the registration now. Verified records will sync when connectivity returns.",
+      textHi: "Save locally now; sync to the central database when network is available."
+    },
+    {
+      title: "Aadhaar Readiness",
+      titleHi: "Photo match",
+      text: "Keep the Aadhaar-linked photo ready before identity verification to reduce retries during face matching.",
+      textHi: "Use a clear face view for faster verification."
+    },
+    {
+      title: "Growth Follow-Up",
+      titleHi: "Next check",
+      text: "For children under six, schedule the next weight check immediately after registration.",
+      textHi: "This keeps growth monitoring on track."
+    },
+    {
+      title: "High-Risk Flagging",
+      titleHi: "Priority alerts",
+      text: "Accurate category and birth details help generate urgent nutrition and pregnancy alerts correctly.",
+      textHi: "Small details improve priority decisions."
+    }
+  ];
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setHintIndex(prev => (prev + 1) % hints.length);
+    }, 4500);
+    return () => window.clearInterval(timer);
+  }, [hints.length]);
 
   const canProceed = name.trim() && dob && category;
 
@@ -228,45 +287,94 @@ export function AddBeneficiaryScreen({ onNext, onBack }: Props) {
           </div>
         </div>
 
-        {/* RAG AI Hint */}
+        {/* Smart Hints Carousel */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="rounded-2xl p-4 mb-4"
+          className="rounded-2xl p-4 mb-4 relative overflow-hidden"
           style={{
             background: "linear-gradient(135deg, #EEF2FF 0%, #E8F4FD 100%)",
             border: "1px solid rgba(99,102,241,0.2)",
             boxShadow: "0 0 0 3px rgba(99,102,241,0.06), 0 4px 16px rgba(99,102,241,0.1)",
           }}
         >
-          <div className="flex items-start gap-3">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: "linear-gradient(135deg, #6366F1, #818CF8)" }}
+          {/* Carousel content */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={hintIndex}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+              className="flex items-start gap-3"
             >
-              <Sparkles size={17} color="#fff" />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-1.5 mb-1">
-                <p className="font-bold" style={{ fontSize: "0.72rem", color: "#4338CA" }}>
-                  AI Tutor Tip{" "}
-                  <span style={{ fontFamily: "'Noto Sans Devanagari', sans-serif", fontWeight: 400, color: "#6366F1" }}>/ AI ट्यूटर सुझाव</span>
-                </p>
-                <div
-                  className="px-1.5 py-0.5 rounded-full"
-                  style={{ background: "rgba(99,102,241,0.15)" }}
-                >
-                  <span style={{ fontSize: "0.48rem", color: "#4338CA", fontWeight: 700 }}>SMART HINT</span>
-                </div>
+              <div
+                className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: "linear-gradient(135deg, #6366F1, #818CF8)" }}
+              >
+                <Sparkles size={17} color="#fff" />
               </div>
-              <p style={{ fontSize: "0.7rem", color: "#3730A3", lineHeight: 1.6 }}>
-                Ensure the mother's mobile number matches her government health card for seamless benefit routing.
-              </p>
-              <p style={{ fontSize: "0.62rem", color: "#4338CA", fontFamily: "'Noto Sans Devanagari', sans-serif", lineHeight: 1.5, marginTop: 4, opacity: 0.8 }}>
-                सुनिश्चित करें कि माँ का मोबाइल नंबर सरकारी हेल्थ कार्ड से मेल खाता हो।
-              </p>
+              <div className="flex-1">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <p className="font-bold" style={{ fontSize: "0.72rem", color: "#4338CA" }}>
+                    {hints[hintIndex].title}{" "}
+                    <span style={{ fontFamily: "'Noto Sans Devanagari', sans-serif", fontWeight: 400, color: "#6366F1", fontSize: "0.65rem" }}>/ {hints[hintIndex].titleHi}</span>
+                  </p>
+                  <div
+                    className="px-1.5 py-0.5 rounded-full"
+                    style={{ background: "rgba(99,102,241,0.15)" }}
+                  >
+                    <span style={{ fontSize: "0.48rem", color: "#4338CA", fontWeight: 700 }}>HINT {hintIndex + 1}/{hints.length}</span>
+                  </div>
+                </div>
+                <p style={{ fontSize: "0.7rem", color: "#3730A3", lineHeight: 1.6 }}>
+                  {hints[hintIndex].text}
+                </p>
+                <p style={{ fontSize: "0.62rem", color: "#4338CA", fontFamily: "'Noto Sans Devanagari', sans-serif", lineHeight: 1.5, marginTop: 4, opacity: 0.8 }}>
+                  {hints[hintIndex].textHi}
+                </p>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Carousel controls */}
+          <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: "1px solid rgba(99,102,241,0.15)" }}>
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setHintIndex(prev => prev === 0 ? hints.length - 1 : prev - 1)}
+              className="w-7 h-7 rounded-lg flex items-center justify-center"
+              style={{ background: "rgba(99,102,241,0.2)" }}
+              aria-label="Previous hint"
+            >
+              <ChevronLeft size={16} color="#4338CA" />
+            </motion.button>
+            
+            {/* Dot indicators */}
+            <div className="flex gap-1.5">
+              {hints.map((_, i) => (
+                <motion.button
+                  key={i}
+                  onClick={() => setHintIndex(i)}
+                  animate={{
+                    background: i === hintIndex ? "rgba(99,102,241,0.8)" : "rgba(99,102,241,0.25)",
+                    scale: i === hintIndex ? 1.2 : 1,
+                  }}
+                  transition={{ duration: 0.2 }}
+                  className="w-2 h-2 rounded-full"
+                />
+              ))}
             </div>
+
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setHintIndex(prev => prev === hints.length - 1 ? 0 : prev + 1)}
+              className="w-7 h-7 rounded-lg flex items-center justify-center"
+              style={{ background: "rgba(99,102,241,0.2)" }}
+              aria-label="Next hint"
+            >
+              <ChevronRight size={16} color="#4338CA" />
+            </motion.button>
           </div>
         </motion.div>
 
