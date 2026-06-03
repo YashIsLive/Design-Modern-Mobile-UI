@@ -310,7 +310,7 @@ export function LoginScreen({ onNext, userRole, onBack, onRoleChange }: Props) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6 }}
-        className="relative overflow-hidden flex flex-col items-center pt-10 pb-9 px-6"
+        className="relative overflow-hidden flex flex-col items-center flex-shrink-0 pt-7 pb-12 px-6"
         style={{ background: "linear-gradient(170deg, #1A2E4A 0%, #253D5E 70%, #2E4F78 100%)" }}
       >
         <motion.div
@@ -319,14 +319,14 @@ export function LoginScreen({ onNext, userRole, onBack, onRoleChange }: Props) {
           className="absolute -top-10 -right-10 w-40 h-40 rounded-full"
           style={{ background: "#E86B2E" }}
         />
-        <div className="absolute -bottom-5 left-0 right-0 h-8 rounded-t-3xl z-0 pointer-events-none" style={{ background: "#FDF6EE" }} />
+        <div className="absolute -bottom-1 left-0 right-0 h-7 rounded-t-3xl z-0 pointer-events-none" style={{ background: "#FDF6EE" }} />
 
         {/* Emblems row */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="flex items-start gap-6 mb-4 relative z-10"
+          className="flex items-start gap-6 mb-4 relative z-10 -translate-y-1"
         >
           <motion.div whileHover={{ scale: 1.08 }} transition={{ duration: 0.3 }}>
             <MoWCDFullEmblem />
