@@ -2,7 +2,6 @@
   "buildCommand": "npm ci && npm run build",
   "outputDirectory": "dist",
   "devCommand": "npm run dev",
-  "nodejs": "18.17.0",
   "env": {
     "NODE_ENV": "production"
   }
